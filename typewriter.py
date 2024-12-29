@@ -3,12 +3,12 @@ from __future__ import annotations
 import urwid
 import asyncio
 
-
 DEFAULT_LETTER_DELAY = 1 / 30
 
 
 class Typewriter(urwid.WidgetWrap):
-    def __init__(self, text_widget: urwid.Text | None = None, edit_widget: urwid.Edit | None = None, letter_delay: float = DEFAULT_LETTER_DELAY) -> None:
+    def __init__(self, text_widget: urwid.Text | None = None, edit_widget: urwid.Edit | None = None,
+                 letter_delay: float = DEFAULT_LETTER_DELAY) -> None:
         self.text_w = text_widget if text_widget else urwid.Text('')
         self.edit_w = edit_widget if edit_widget else urwid.Edit()
         self.skip = False
@@ -43,6 +43,3 @@ class Typewriter(urwid.WidgetWrap):
             self.edit_w.set_caption(text)
             loop.draw_screen()
         self.skip = False
-
-    def schedule_typing(self, loop: urwid.MainLoop, text):
-        asyncio.create_task(self.type(loop, text))
