@@ -18,6 +18,8 @@ class Typewriter(urwid.WidgetWrap):
         super().__init__(self.text_w)
         self._selectable = True
 
+    # selectability determines whether the widget will receive key presses
+    # this overrides the selectable method to allow receiving key presses for typewriter skipping to work
     def selectable(self) -> bool:
         return self._selectable
 
