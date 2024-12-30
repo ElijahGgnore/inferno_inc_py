@@ -7,6 +7,8 @@ DEFAULT_LETTER_DELAY = 1 / 30
 
 
 class Typewriter(urwid.WidgetWrap):
+    signals = ['symbol_typed', 'finished_typing']
+
     def __init__(self, text_widget: urwid.Text | None = None, edit_widget: urwid.Edit | None = None,
                  letter_delay: float = DEFAULT_LETTER_DELAY) -> None:
         self.text_w = text_widget if text_widget else urwid.Text('')
@@ -25,21 +27,21 @@ class Typewriter(urwid.WidgetWrap):
 
         return super().keypress(size, key)
 
-    async def type(self, loop: urwid.MainLoop, text: str, edit_after: bool = False):
+    async def type(self, text: str, edit_after: bool = False):
         self._w = self.text_w
         self.skip = False
         self.text_w.set_text('')
         for s in text:
             if self.skip:
                 self.text_w.set_text(text)
-                loop.draw_screen()
+                self._emit('symbol_typed', [s])
                 break
             else:
                 self.text_w.set_text(self.text_w.text + s)
-                loop.draw_screen()
+                self._emit('symbol_typed', [s])
                 await asyncio.sleep(self.letter_delay)
         if edit_after:
             self._w = self.edit_w
             self.edit_w.set_caption(text)
-            loop.draw_screen()
+        self._emit('finished_typing')
         self.skip = False
