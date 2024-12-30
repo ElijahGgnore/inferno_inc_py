@@ -17,5 +17,7 @@ lbox = urwid.LineBox(fill)
 
 loop = asyncio.new_event_loop()
 urwid_loop = urwid.MainLoop(lbox, unhandled_input=exit_on_q, event_loop=urwid.AsyncioEventLoop(loop=loop))
-loop.create_task(text_w.type(urwid_loop, 'What\'s your name?\n', True))
+loop.create_task(text_w.type('What\'s your name?\n', True))
+urwid.connect_signal(text_w, 'symbol_typed', lambda *_: urwid_loop.draw_screen())
+urwid.connect_signal(text_w, 'finished_typing', lambda *_: urwid_loop.draw_screen())
 urwid_loop.run()
