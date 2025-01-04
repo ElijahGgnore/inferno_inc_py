@@ -17,9 +17,6 @@ class Scene:
     def setup(self):
         raise NotImplementedError()
 
-    def draw_screen(self):
-        self.stage.urwid_loop.draw_screen()
-
 
 class Stage:
     """
