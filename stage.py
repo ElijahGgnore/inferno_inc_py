@@ -32,6 +32,7 @@ class Stage:
         self.current_scene = scene
         if self.urwid_loop:
             self.urwid_loop.widget = scene.root_widget
+        self.current_scene.setup()
 
     def run(self):
         self.urwid_loop = urwid.MainLoop(self.current_scene.root_widget, unhandled_input=unhandled_input,
