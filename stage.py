@@ -15,7 +15,7 @@ class Scene:
         self.root_widget = root_widget
 
     def setup(self):
-        raise NotImplementedError()
+        pass
 
 
 class Stage:
