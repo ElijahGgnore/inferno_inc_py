@@ -13,8 +13,10 @@ class Typewriter(urwid.WidgetWrap):
                  letter_delay: float = DEFAULT_LETTER_DELAY) -> None:
         self.text_w = text_widget if text_widget else urwid.Text('')
         self.edit_w = edit_widget if edit_widget else urwid.Edit()
+
         self.skip = False
         self.letter_delay = letter_delay
+
         super().__init__(self.text_w)
         self._selectable = True
 
@@ -45,5 +47,6 @@ class Typewriter(urwid.WidgetWrap):
         if edit_after:
             self._w = self.edit_w
             self.edit_w.set_caption(text)
+            self.edit_w.set_edit_text('')
         self._emit('finished_typing')
         self.skip = False
