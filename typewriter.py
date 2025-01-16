@@ -15,7 +15,6 @@ class Typewriter(urwid.WidgetWrap):
         self.edit_w = edit_widget if edit_widget else urwid.Edit()
 
         self.skip = False
-        self.letter_delay = letter_delay
 
         super().__init__(self.text_w)
         self._selectable = True
@@ -31,7 +30,8 @@ class Typewriter(urwid.WidgetWrap):
 
         return super().keypress(size, key)
 
-    async def type(self, text: str, edit_after: bool = False):
+    async def type(self, text: str, edit_after: bool = False, letter_delay: float | None = None):
+        letter_delay = letter_delay if letter_delay else DEFAULT_LETTER_DELAY
         self._w = self.text_w
         self.skip = False
         self.text_w.set_text('')
@@ -43,7 +43,7 @@ class Typewriter(urwid.WidgetWrap):
             else:
                 self.text_w.set_text(self.text_w.text + s)
                 self._emit('symbol_typed', [s])
-                await asyncio.sleep(self.letter_delay)
+                await asyncio.sleep(letter_delay)
         if edit_after:
             self._w = self.edit_w
             self.edit_w.set_caption(text)
