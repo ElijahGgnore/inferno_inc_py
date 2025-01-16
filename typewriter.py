@@ -26,7 +26,7 @@ class Typewriter(urwid.WidgetWrap):
         return self._selectable
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if key == 's':
+        if key == 'enter':
             self.skip = True
 
         return super().keypress(size, key)
