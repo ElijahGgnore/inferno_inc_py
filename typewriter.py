@@ -3,10 +3,12 @@ from __future__ import annotations
 import urwid
 import asyncio
 
+import widget_utils
+
 DEFAULT_LETTER_DELAY = 1 / 30
 
 
-class Typewriter(urwid.WidgetWrap):
+class Typewriter(widget_utils.SelectableWidgetWrap):
     signals = ['symbol_typed', 'finished_typing']
 
     def __init__(self, text_widget: urwid.Text | None = None, edit_widget: urwid.Edit | None = None) -> None:
@@ -16,12 +18,6 @@ class Typewriter(urwid.WidgetWrap):
         self.skip = False
 
         super().__init__(self.text_w)
-        self._selectable = True
-
-    # selectability determines whether the widget will receive key presses
-    # this overrides the selectable method to allow receiving key presses for typewriter skipping to work
-    def selectable(self) -> bool:
-        return self._selectable
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         if key == 'enter':
@@ -29,7 +25,7 @@ class Typewriter(urwid.WidgetWrap):
 
         return super().keypress(size, key)
 
-    async def type(self, text: str, edit_after: bool = False, letter_delay: float | None = None, append_text = False):
+    async def type(self, text: str, edit_after: bool = False, letter_delay: float | None = None, append_text=False):
         letter_delay = letter_delay if letter_delay else DEFAULT_LETTER_DELAY
         self._w = self.text_w
         self.skip = False
