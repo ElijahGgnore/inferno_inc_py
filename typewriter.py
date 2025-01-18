@@ -9,8 +9,7 @@ DEFAULT_LETTER_DELAY = 1 / 30
 class Typewriter(urwid.WidgetWrap):
     signals = ['symbol_typed', 'finished_typing']
 
-    def __init__(self, text_widget: urwid.Text | None = None, edit_widget: urwid.Edit | None = None,
-                 letter_delay: float = DEFAULT_LETTER_DELAY) -> None:
+    def __init__(self, text_widget: urwid.Text | None = None, edit_widget: urwid.Edit | None = None) -> None:
         self.text_w = text_widget if text_widget else urwid.Text('')
         self.edit_w = edit_widget if edit_widget else urwid.Edit()
 
