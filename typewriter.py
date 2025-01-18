@@ -30,11 +30,12 @@ class Typewriter(urwid.WidgetWrap):
 
         return super().keypress(size, key)
 
-    async def type(self, text: str, edit_after: bool = False, letter_delay: float | None = None):
+    async def type(self, text: str, edit_after: bool = False, letter_delay: float | None = None, append_text = False):
         letter_delay = letter_delay if letter_delay else DEFAULT_LETTER_DELAY
         self._w = self.text_w
         self.skip = False
-        self.text_w.set_text('')
+        if not append_text:
+            self.text_w.set_text('')
         for s in text:
             if self.skip:
                 self.text_w.set_text(text)
@@ -46,7 +47,7 @@ class Typewriter(urwid.WidgetWrap):
                 await asyncio.sleep(letter_delay)
         if edit_after:
             self._w = self.edit_w
-            self.edit_w.set_caption(text)
+            self.edit_w.set_caption(self.text_w.text)
             self.edit_w.set_edit_text('')
         self._emit('finished_typing')
         self.skip = False
