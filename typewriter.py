@@ -25,6 +25,9 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
 
         return super().keypress(size, key)
 
+    def append_text(self, text):
+        self.text_w.set_text(self.text_w.text + text)
+
     async def type(self, text: str, edit_after: bool = False, letter_delay: float | None = None, append_text=False):
         letter_delay = letter_delay if letter_delay else DEFAULT_LETTER_DELAY
         self._w = self.text_w
@@ -37,7 +40,7 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
                 self._emit('symbol_typed', [s])
                 break
             else:
-                self.text_w.set_text(self.text_w.text + s)
+                self.append_text(s)
                 self._emit('symbol_typed', [s])
                 await asyncio.sleep(letter_delay)
         if edit_after:
