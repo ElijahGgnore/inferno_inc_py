@@ -12,12 +12,20 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
     signals = ['symbol_typed', 'finished_typing']
 
     def __init__(self, text_widget: urwid.Text | None = None, edit_widget: urwid.Edit | None = None) -> None:
-        self.text_w = text_widget if text_widget else urwid.Text('')
-        self.edit_w = edit_widget if edit_widget else urwid.Edit()
+        self._text_widget = text_widget if text_widget else urwid.Text('')
+        self._edit_widget = edit_widget if edit_widget else urwid.Edit()
 
         self.skip = False
 
-        super().__init__(self.text_w)
+        super().__init__(self._text_widget)
+
+    @property
+    def text_widget(self):
+        return self._text_widget
+
+    @property
+    def edit_widget(self):
+        return self._edit_widget
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         if key == 'enter':
@@ -26,14 +34,14 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
         return super().keypress(size, key)
 
     def append_text(self, text):
-        self.text_w.set_text(self.text_w.text + text)
+        self._text_widget.set_text(self._text_widget.text + text)
 
     async def type(self, text: str, edit_after: bool = False, symbol_delay: float | None = None, append_text=True):
         symbol_delay = DEFAULT_SYMBOL_DELAY if symbol_delay is None else symbol_delay
-        self._w = self.text_w
+        self._w = self._text_widget
         self.skip = False
         if not append_text:
-            self.text_w.set_text('')
+            self._text_widget.set_text('')
         if symbol_delay:
             for i in range(len(text)):
                 s = text[i]
@@ -47,8 +55,8 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
         else:
             self.append_text(text)
         if edit_after:
-            self._w = self.edit_w
-            self.edit_w.set_caption(self.text_w.text)
-            self.edit_w.set_edit_text('')
+            self._w = self._edit_widget
+            self._edit_widget.set_caption(self._text_widget.text)
+            self._edit_widget.set_edit_text('')
         self._emit('finished_typing')
         self.skip = False
