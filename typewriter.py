@@ -5,7 +5,7 @@ import asyncio
 
 import widget_utils
 
-DEFAULT_LETTER_DELAY = 1 / 30
+DEFAULT_SYMBOL_DELAY = 1 / 30
 
 
 class Typewriter(widget_utils.SelectableWidgetWrap):
@@ -28,8 +28,8 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
     def append_text(self, text):
         self.text_w.set_text(self.text_w.text + text)
 
-    async def type(self, text: str, edit_after: bool = False, letter_delay: float | None = None, append_text=False):
-        letter_delay = letter_delay if letter_delay else DEFAULT_LETTER_DELAY
+    async def type(self, text: str, edit_after: bool = False, symbol_delay: float | None = None, append_text=False):
+        symbol_delay = symbol_delay if symbol_delay else DEFAULT_SYMBOL_DELAY
         self._w = self.text_w
         self.skip = False
         if not append_text:
@@ -42,7 +42,7 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
             else:
                 self.append_text(s)
                 self._emit('symbol_typed', [s])
-                await asyncio.sleep(letter_delay)
+                await asyncio.sleep(symbol_delay)
         if edit_after:
             self._w = self.edit_w
             self.edit_w.set_caption(self.text_w.text)
