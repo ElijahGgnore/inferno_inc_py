@@ -39,7 +39,6 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
                 s = text[i]
                 if self.skip:
                     self.append_text(text[i:])
-                    self._emit('symbol_typed', [s])
                     break
                 else:
                     self.append_text(s)
