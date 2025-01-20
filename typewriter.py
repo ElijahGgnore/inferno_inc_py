@@ -28,7 +28,7 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
     def append_text(self, text):
         self.text_w.set_text(self.text_w.text + text)
 
-    async def type(self, text: str, edit_after: bool = False, symbol_delay: float | None = None, append_text=False):
+    async def type(self, text: str, edit_after: bool = False, symbol_delay: float | None = None, append_text=True):
         symbol_delay = symbol_delay if symbol_delay else DEFAULT_SYMBOL_DELAY
         self._w = self.text_w
         self.skip = False
