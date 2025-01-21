@@ -33,6 +33,19 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
 
         return super().keypress(size, key)
 
+    def enable_input(self):
+        if self._w is self._text_widget:
+            self._w = self._edit_widget
+            self._edit_widget.set_caption(self._text_widget.text)
+
+    def disable_input(self, append_input: bool = True):
+        if self._w is self._edit_widget:
+            self._w = self._text_widget
+            if append_input:
+                self._text_widget.set_text(self._edit_widget.text)
+            else:
+                self._text_widget.set_text(self._edit_widget.caption)
+
     def append_text(self, text):
         self._text_widget.set_text(self._text_widget.text + text)
 
@@ -55,8 +68,8 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
         else:
             self.append_text(text)
         if edit_after:
-            self._w = self._edit_widget
-            self._edit_widget.set_caption(self._text_widget.text)
+            self.enable_input()
             self._edit_widget.set_edit_text('')
+
         self._emit('finished_typing')
         self.skip = False
