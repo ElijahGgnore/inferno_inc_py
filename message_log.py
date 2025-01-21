@@ -1,6 +1,7 @@
 from __future__ import annotations
 from collections import deque
 from collections.abc import Callable
+from typing import Any
 
 import urwid
 
@@ -34,7 +35,8 @@ class Message(urwid.WidgetWrap):
 
 
 class TextMessage(Message):
-    def __init__(self, parts: list[TextMessagePart], final_callback: Callable[TextMessage] | None = None):
+    def __init__(self, parts: list[TextMessagePart],
+                 final_callback: Callable[[TextMessage], Any] | None = None):
         self.parts: deque[TextMessagePart] = deque(parts)
         self.final_callback = final_callback
 
