@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import urwid
 import asyncio
 
@@ -28,13 +30,23 @@ class Scene(urwid.WidgetWrap):
 
 class Stage:
     """
-    This class manages scenes and sets up the loops required to run the application
+    A class to manage scenes, store globally-accessible data, and set up the loops required to run the application
     """
 
     def __init__(self):
         self._asyncio_loop = asyncio.new_event_loop()
-        self._current_scene: Scene | None = None
         self._urwid_loop: urwid.MainLoop | None = None
+        self._global_variables: dict[str, Any] = {}
+        self._current_scene: Scene | None = None
+
+    def get_global_var(self, var_name: str) -> Any:
+        return self._global_variables[var_name]
+
+    def set_global_var(self, var_name: str, value: Any):
+        self._global_variables[var_name] = value
+
+    def delete_global_var(self, var_name: str):
+        del self._global_variables[var_name]
 
     @property
     def asyncio_loop(self):

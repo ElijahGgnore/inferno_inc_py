@@ -28,6 +28,10 @@ class Message(urwid.WidgetWrap):
         super().__init__(w)
         self._message_log: MessageLog | None = None
 
+    @property
+    def message_log(self):
+        return self._message_log
+
     def setup(self, message_log):
         """
         Called by MessageLog after appending the message.
@@ -48,7 +52,7 @@ class TextMessage(Message):
         self._continue_hint = urwid.Text('[Press ENTER to continue]')
         self._can_continue = False
 
-        self.input_dict: dict[str, str] = {}
+        self.input_vars: dict[str, str] = {}
         self._current_part: TextMessagePart | None = None
 
         super().__init__(self._pile)
@@ -86,7 +90,13 @@ class TextMessage(Message):
         if key == 'enter':
             if self._current_part is not None:
                 if self._current_part.store_input_at is not None:
-                    self.input_dict[self._current_part.store_input_at] = self._typewriter.edit_widget.edit_text
+                    edit_text = self._typewriter.edit_widget.edit_text
+
+                    if self._current_part.store_input_globally:
+                        self._message_log.stage.set_global_var(self._current_part.store_input_at, edit_text)
+                    else:
+                        self.input_vars[self._current_part.store_input_at] = edit_text
+
                     self._typewriter.disable_input()
                     self.continue_()
                     return None
@@ -127,13 +137,18 @@ class TextMessage(Message):
 
 
 class TextMessagePart:
-    def __init__(self, text: str, append_text: bool = True, symbol_delay: float | None = None,
-                 auto_continue: bool = False, store_input_at: str | None = None, append_input: bool = True,
+    def __init__(self, text: str,
+                 append_text: bool = True,
+                 symbol_delay: float | None = None,
+                 auto_continue: bool = False, store_input_at: str | None = None,
+                 store_input_globally: bool = False,
+                 append_input: bool = True,
                  preliminary_callback: Callable[[TextMessage, TextMessagePart], Any] | None = None):
         self.text = text
         self.append_text = append_text
         self.symbol_delay = symbol_delay
         self.auto_continue = auto_continue
         self.store_input_at = store_input_at
+        self.store_input_globally = store_input_globally
         self.append_input = append_input
         self.preliminary_callback = preliminary_callback
