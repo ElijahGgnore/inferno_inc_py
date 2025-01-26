@@ -18,6 +18,8 @@ class MessageLog(stage.Scene):
         super().__init__(self.list_box)
 
     def append_message(self, message: Message):
+        if self.list_body: # disable interaction with previous message
+            self.list_body[-1] = urwid.WidgetDisable(self.list_body[-1])
         self.list_body.append(message)
         self.list_box.focus_position = len(self.list_body) - 1
         message.setup(self)
