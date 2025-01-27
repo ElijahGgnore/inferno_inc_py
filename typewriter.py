@@ -61,15 +61,15 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
                 if self.skip:
                     left_to_type = text[i:]
                     self.append_text(left_to_type)
-                    self._emit('symbol_typed', [left_to_type])
+                    self._emit('symbol_typed', left_to_type)
                     break
                 else:
                     self.append_text(s)
-                    self._emit('symbol_typed', [s])
+                    self._emit('symbol_typed', s)
                     await asyncio.sleep(symbol_delay)
         else:
             self.append_text(text)
-            self._emit('symbol_typed', [text])
+            self._emit('symbol_typed', text)
         if edit_after:
             self.enable_input()
             self._edit_widget.set_edit_text('')
