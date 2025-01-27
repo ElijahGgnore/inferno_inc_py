@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Iterable
 
 import urwid
 
@@ -18,11 +18,14 @@ class MessageLog(stage.Scene):
         super().__init__(self.list_box)
 
     def append_message(self, message: Message):
-        if self.list_body: # disable interaction with previous message
+        if self.list_body:  # disable interaction with previous message
             self.list_body[-1] = urwid.WidgetDisable(self.list_body[-1])
         self.list_body.append(message)
         self.list_box.focus_position = len(self.list_body) - 1
         message.setup(self)
+
+        if self.stage.urwid_loop.screen.started:  # redraw the screen, but only if the screen has been started
+            self.stage.urwid_loop.draw_screen()
 
 
 class Message(urwid.WidgetWrap):
@@ -89,7 +92,7 @@ class TextMessage(Message):
         self.continue_()
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if key == 'enter':
+        if key == 'enter': # TODO: fix TextMessage and typewriter enter key conflict
             if self._current_part is not None:
                 if self._current_part.store_input_at is not None:
                     edit_text = self._typewriter.edit_widget.edit_text
@@ -154,3 +157,20 @@ class TextMessagePart:
         self.store_input_globally = store_input_globally
         self.append_input = append_input
         self.preliminary_callback = preliminary_callback
+
+
+class ButtonMessage(Message):
+    def __init__(self, options: Iterable[ButtonMessageOption]):
+        buttons = []
+        for o in options:
+            b = urwid.Button(o.text)
+            urwid.connect_signal(b, 'click', o.callback, user_args=[self])
+            buttons.append(b)
+        self._pile = urwid.Pile(buttons)
+        super().__init__(self._pile)
+
+
+class ButtonMessageOption:
+    def __init__(self, text: str, callback: Callable[[ButtonMessage, urwid.Button], None]) -> None:
+        self.text = text
+        self.callback = callback

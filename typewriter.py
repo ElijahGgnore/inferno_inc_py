@@ -59,7 +59,9 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
             for i in range(len(text)):
                 s = text[i]
                 if self.skip:
-                    self.append_text(text[i:])
+                    left_to_type = text[i:]
+                    self.append_text(left_to_type)
+                    self._emit('symbol_typed', [left_to_type])
                     break
                 else:
                     self.append_text(s)
@@ -67,6 +69,7 @@ class Typewriter(widget_utils.SelectableWidgetWrap):
                     await asyncio.sleep(symbol_delay)
         else:
             self.append_text(text)
+            self._emit('symbol_typed', [text])
         if edit_after:
             self.enable_input()
             self._edit_widget.set_edit_text('')
