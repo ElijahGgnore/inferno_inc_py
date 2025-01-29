@@ -23,8 +23,8 @@ class Scene(urwid.WidgetWrap):
     def stage(self):
         return self._stage
 
-    def setup(self, stage):
-        self._stage = stage
+    def setup(self, stage_):
+        self._stage = stage_
 
 
 class Stage:
