@@ -118,7 +118,7 @@ class TextMessage(Message, SelectableWidgetWrap):
             if self._current_part.preliminary_callback:
                 self._current_part.preliminary_callback(self, self._current_part)
 
-            self._typewriter.type(self._current_part.text, typing_delay=self._current_part.symbol_delay)
+            self._typewriter.type(self._current_part.text, typing_delay=self._current_part.typing_delay)
         else:
             self._current_part = None
             if self.final_callback is not None:
@@ -145,7 +145,7 @@ class TextMessagePart:
                  append_input: bool = True,
                  preliminary_callback: Callable[[TextMessage, TextMessagePart], Any] | None = None):
         self.text = text
-        self.symbol_delay = symbol_delay
+        self.typing_delay = symbol_delay
         self.auto_continue = auto_continue
         self.store_input_at = store_input_at
         self.store_input_globally = store_input_globally
