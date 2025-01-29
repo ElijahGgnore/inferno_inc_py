@@ -8,7 +8,7 @@ from message_log import MessageLog, TextMessage, TextMessagePart, ButtonMessage,
 
 def text_message():
     def greeting(tm: TextMessage, tmp: TextMessagePart):
-        tmp.text = '\nHello ' + tm.message_log.stage.get_global_var('name') + '\n'
+        tmp.text = '\nHello ' + tm.message_log.stage.get_global_var('name')
 
     return TextMessage([
         TextMessagePart('Welcome', symbol_delay=1 / 10),

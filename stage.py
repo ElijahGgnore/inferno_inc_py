@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 import urwid
-import asyncio
 
 
 def unhandled_input(key: str) -> None:
@@ -34,8 +33,7 @@ class Stage:
     """
 
     def __init__(self):
-        self._asyncio_loop = asyncio.new_event_loop()
-        self._urwid_loop: urwid.MainLoop | None = None
+        self._urwid_loop: urwid.MainLoop | None = None  # TODO: rename to _main_loop
         self._global_variables: dict[str, Any] = {}
         self._current_scene: Scene | None = None
 
@@ -47,10 +45,6 @@ class Stage:
 
     def delete_global_var(self, var_name: str):
         del self._global_variables[var_name]
-
-    @property
-    def asyncio_loop(self):
-        return self._asyncio_loop
 
     @property
     def urwid_loop(self):
@@ -65,8 +59,7 @@ class Stage:
 
     def set_scene(self, scene: Scene):
         if not self._current_scene:
-            self._urwid_loop = urwid.MainLoop(scene.base_widget, unhandled_input=unhandled_input,
-                                              event_loop=urwid.AsyncioEventLoop(loop=self.asyncio_loop))
+            self._urwid_loop = urwid.MainLoop(scene.base_widget, unhandled_input=unhandled_input)
         else:
             self._urwid_loop.widget = scene.base_widget
         self._current_scene = scene

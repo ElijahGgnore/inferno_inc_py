@@ -8,7 +8,7 @@ import urwid
 
 import stage
 import typewriter
-from widget_utils import signal_callback_stub
+from widget_utils import signal_callback_stub, SelectableWidgetWrap
 
 
 class MessageLog(stage.Scene):
@@ -45,7 +45,7 @@ class Message(urwid.WidgetWrap):
         self._message_log = message_log
 
 
-class TextMessage(Message):
+class TextMessage(Message, SelectableWidgetWrap):
     def __init__(self, parts: list[TextMessagePart],
                  final_callback: Callable[[TextMessage], Any] | None = None):
         self.parts: deque[TextMessagePart] = deque(parts)
@@ -72,19 +72,19 @@ class TextMessage(Message):
 
     def setup(self, message_log):
         super().setup(message_log)
+        self._typewriter.event_loop = message_log.stage.urwid_loop.event_loop
         urwid.connect_signal(self._typewriter,
-                             'symbol_typed',
+                             'fragment_typed',
                              signal_callback_stub(message_log.stage.urwid_loop.draw_screen))
 
         def on_typewriter_finished():
-            if self._current_part is not None:
-                if self._current_part.store_input_at is not None:
-                    self._typewriter.enable_input()
-                    self._message_log.stage.urwid_loop.draw_screen()
-                elif self._current_part.auto_continue:
-                    self.continue_()
-                else:
-                    self.enable_continue()
+            if self._current_part.store_input_at is not None:
+                self._typewriter.enable_input()
+                self._message_log.stage.urwid_loop.draw_screen()
+            elif self._current_part.auto_continue:
+                self.continue_()
+            else:
+                self.enable_continue()
 
         urwid.connect_signal(self._typewriter,
                              'finished_typing',
@@ -92,25 +92,24 @@ class TextMessage(Message):
         self.continue_()
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if key == 'enter': # TODO: fix TextMessage and typewriter enter key conflict
+        if key == 'enter':
             if self._current_part is not None:
-                if self._current_part.store_input_at is not None:
+                if self._typewriter.is_typing():
+                    self._typewriter.skip()
+                elif self._current_part.store_input_at is not None:
                     edit_text = self._typewriter.edit_widget.edit_text
-
                     if self._current_part.store_input_globally:
                         self._message_log.stage.set_global_var(self._current_part.store_input_at, edit_text)
                     else:
                         self.input_vars[self._current_part.store_input_at] = edit_text
-
-                    self._typewriter.disable_input()
+                    self._typewriter.disable_input(append_input=self._current_part.append_input)
                     self.continue_()
-                    return None
                 elif self._can_continue:
                     self.disable_continue()
                     self.continue_()
-                    return None
+            return None
 
-        return super().keypress(size, key)
+        return self._typewriter.keypress(size, key)  # Pass input to typewriter directly
 
     def continue_(self):
         if len(self.parts):
@@ -119,10 +118,7 @@ class TextMessage(Message):
             if self._current_part.preliminary_callback:
                 self._current_part.preliminary_callback(self, self._current_part)
 
-            self._message_log.stage.asyncio_loop.create_task(
-                self._typewriter.type(self._current_part.text,
-                                      symbol_delay=self._current_part.symbol_delay,
-                                      append_text=self._current_part.append_text))
+            self._typewriter.type(self._current_part.text, typing_delay=self._current_part.symbol_delay)
         else:
             self._current_part = None
             if self.final_callback is not None:
@@ -143,14 +139,12 @@ class TextMessage(Message):
 
 class TextMessagePart:
     def __init__(self, text: str,
-                 append_text: bool = True,
                  symbol_delay: float | None = None,
                  auto_continue: bool = False, store_input_at: str | None = None,
                  store_input_globally: bool = False,
                  append_input: bool = True,
                  preliminary_callback: Callable[[TextMessage, TextMessagePart], Any] | None = None):
         self.text = text
-        self.append_text = append_text
         self.symbol_delay = symbol_delay
         self.auto_continue = auto_continue
         self.store_input_at = store_input_at
