@@ -24,8 +24,8 @@ class MessageLog(stage.Scene):
         self.list_box.focus_position = len(self.list_body) - 1
         message.setup(self)
 
-        if self.stage.urwid_loop.screen.started:  # redraw the screen, but only if the screen has been started
-            self.stage.urwid_loop.draw_screen()
+        if self.stage.main_loop.screen.started:  # redraw the screen, but only if the screen has been started
+            self.stage.main_loop.draw_screen()
 
 
 class Message(urwid.WidgetWrap):
@@ -72,15 +72,15 @@ class TextMessage(Message, SelectableWidgetWrap):
 
     def setup(self, message_log):
         super().setup(message_log)
-        self._typewriter.event_loop = message_log.stage.urwid_loop.event_loop
+        self._typewriter.event_loop = message_log.stage.main_loop.event_loop
         urwid.connect_signal(self._typewriter,
                              'fragment_typed',
-                             signal_callback_stub(message_log.stage.urwid_loop.draw_screen))
+                             signal_callback_stub(message_log.stage.main_loop.draw_screen))
 
         def on_typewriter_finished():
             if self._current_part.store_input_at is not None:
                 self._typewriter.enable_input()
-                self._message_log.stage.urwid_loop.draw_screen()
+                self._message_log.stage.main_loop.draw_screen()
             elif self._current_part.auto_continue:
                 self.continue_()
             else:
@@ -127,13 +127,13 @@ class TextMessage(Message, SelectableWidgetWrap):
     def enable_continue(self):
         if not self._can_continue:
             self._pile.contents.append((self._continue_hint, self._pile.options()))
-            self._message_log.stage.urwid_loop.draw_screen()
+            self._message_log.stage.main_loop.draw_screen()
         self._can_continue = True
 
     def disable_continue(self):
         if self._can_continue:
             self._pile.contents.pop(1)
-            self._message_log.stage.urwid_loop.draw_screen()
+            self._message_log.stage.main_loop.draw_screen()
         self._can_continue = False
 
 

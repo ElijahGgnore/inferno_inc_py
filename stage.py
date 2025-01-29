@@ -33,7 +33,7 @@ class Stage:
     """
 
     def __init__(self):
-        self._urwid_loop: urwid.MainLoop | None = None  # TODO: rename to _main_loop
+        self._main_loop: urwid.MainLoop | None = None
         self._global_variables: dict[str, Any] = {}
         self._current_scene: Scene | None = None
 
@@ -47,9 +47,9 @@ class Stage:
         del self._global_variables[var_name]
 
     @property
-    def urwid_loop(self):
-        if self._urwid_loop:
-            return self._urwid_loop
+    def main_loop(self):
+        if self._main_loop:
+            return self._main_loop
         else:
             raise StageError("urwid loop hasn't been created yet")
 
@@ -59,14 +59,14 @@ class Stage:
 
     def set_scene(self, scene: Scene):
         if not self._current_scene:
-            self._urwid_loop = urwid.MainLoop(scene.base_widget, unhandled_input=unhandled_input)
+            self._main_loop = urwid.MainLoop(scene.base_widget, unhandled_input=unhandled_input)
         else:
-            self._urwid_loop.widget = scene.base_widget
+            self._main_loop.widget = scene.base_widget
         self._current_scene = scene
         self._current_scene.setup(self)
 
     def run(self):
         if self._current_scene:
-            self.urwid_loop.run()
+            self.main_loop.run()
         else:
             raise StageError("No scene has been set")
