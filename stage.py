@@ -23,8 +23,24 @@ class Scene(urwid.WidgetWrap):
     def stage(self):
         return self._stage
 
-    def setup(self, stage_):
+    def on_enter_stage(self, stage_):
+        """
+        Called by a stage when a scene is added to it.
+        :param stage_: the stage the scene was added to
+        :return:
+        """
         self._stage = stage_
+        self.setup()
+
+    def on_exit_stage(self):
+        """
+        Called by a stage when a new scene is set
+        :return:
+        """
+        self._stage = None
+
+    def setup(self):
+        pass
 
 
 class Stage:
@@ -61,9 +77,11 @@ class Stage:
         if not self._current_scene:
             self._main_loop = urwid.MainLoop(scene.base_widget, unhandled_input=unhandled_input)
         else:
+            self._current_scene.on_exit_stage()
             self._main_loop.widget = scene.base_widget
+
         self._current_scene = scene
-        self._current_scene.setup(self)
+        self._current_scene.on_enter_stage(self)
 
     def run(self):
         if self._current_scene:

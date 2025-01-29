@@ -5,9 +5,7 @@ from message_log import MessageLog, TextMessage, TextMessagePart, ButtonMessage,
 
 
 class Demo(MessageLog):
-    def setup(self, stage_):
-        super().setup(stage_)
-        
+    def setup(self):
         def text_message():
             def greeting(tm: TextMessage, tmp: TextMessagePart):
                 tmp.text = '\nHello ' + tm.message_log.stage.get_global_var('name')
